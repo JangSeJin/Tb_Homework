@@ -1,5 +1,6 @@
 package com.hour24.tb.model
 
+import java.io.Serializable
 import java.util.*
 
 //{
@@ -22,11 +23,11 @@ import java.util.*
 //}
 
 data class SearchModel(val meta: MetaModel,
-                       val documents: ArrayList<DocumentItem>)
+                       val documents: ArrayList<DocumentItem>) : Serializable
 
 data class MetaModel(val total_count: Int,
                      val pageable_count: Int,
-                     val is_end: Boolean)
+                     val is_end: Boolean) : Serializable
 
 data class DocumentItem(var filter: String,
                         val title: String,
@@ -37,7 +38,8 @@ data class DocumentItem(var filter: String,
                         val name: String, // blog, cafe name 통합
                         val thumbnail: String,
                         val datetime: String,
-                        var date: Date
-)
+                        var date: Date,
+                        var position: Int
+) : Serializable
 
 

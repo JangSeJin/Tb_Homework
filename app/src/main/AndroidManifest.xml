@@ -20,6 +20,12 @@
             </intent-filter>
         </activity>
 
+        <!-- 검색 상세 -->
+        <activity android:name=".view.activity.DetailActivity" />
+
+        <!-- WebView -->
+        <activity android:name=".view.activity.WebActivity" />
+
     </application>
 
 </manifest>

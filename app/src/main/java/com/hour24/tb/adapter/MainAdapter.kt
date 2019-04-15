@@ -92,7 +92,7 @@ class MainAdapter constructor(
 
             // 검색 아이템
                 Style.MAIN.ITEM ->
-                    holder.searchItem!!.onBindView(item!!)
+                    holder.searchItem!!.onBindView(item!!, position)
 
             }
 

@@ -17,9 +17,12 @@
     </data>
 
     <RelativeLayout
+        android:id="@+id/rl_search"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#ffffff">
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:onClick="@{(v) -> viewModel.onClick(v, viewModel.mModel)}">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -30,8 +33,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:clickable="true"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
@@ -96,8 +97,8 @@
                 </LinearLayout>
 
                 <ImageView
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"
+                    android:layout_width="@dimen/main_thumbnail"
+                    android:layout_height="@dimen/main_thumbnail"
                     android:layout_marginLeft="5dp"
                     android:scaleType="centerCrop"
                     android:visibility="@{!ObjectUtils.isEmpty(viewModel.mModel.thumbnail) ? View.VISIBLE : View.GONE}"
@@ -113,5 +114,9 @@
                 android:background="#d8d8d8" />
         </LinearLayout>
 
+        <View
+            android:id="@+id/v_search"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
     </RelativeLayout>
 </layout>

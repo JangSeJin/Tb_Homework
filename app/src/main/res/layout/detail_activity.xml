@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:bind="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <import type="com.hour24.tb.utils.ObjectUtils" />
+
+        <variable
+            name="viewModel"
+            type="com.hour24.tb.view.activity.DetailActivity.ViewModel" />
+
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#ffffff"
+        android:orientation="vertical">
+
+        <!-- header -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:background="@android:color/white"
+            android:elevation="10dp"
+            android:gravity="center_vertical">
+
+            <android.support.v7.widget.AppCompatImageView
+                android:id="@+id/iv_back"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:onClick="@{(v) -> viewModel.onClick(v)}"
+                app:srcCompat="@drawable/ic_header_back" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:ellipsize="end"
+                android:gravity="center"
+                android:maxLength="10"
+                android:maxLines="1"
+                android:text='@{viewModel.mModel.filter ?? ""}'
+                android:textColor="#313131"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                tools:text="Blog" />
+        </RelativeLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="@dimen/detail_thumbnail"
+                    android:layout_height="@dimen/detail_thumbnail"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="20dp"
+                    android:scaleType="centerCrop"
+                    android:visibility="@{!ObjectUtils.isEmpty(viewModel.mModel.thumbnail) ? View.VISIBLE : View.GONE}"
+                    bind:height="@{@dimen/detail_thumbnail}"
+                    bind:loadImage='@{viewModel.mModel.thumbnail ?? ""}'
+                    bind:width="@{@dimen/detail_thumbnail}"
+                    tools:src="@mipmap/ic_launcher" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:text="@{viewModel.getName(viewModel.mModel)}"
+                    android:textColor="#4E4E4E"
+                    android:textSize="15sp"
+                    tools:text="blog name" />
+
+                <View
+                    android:layout_width="wrap_content"
+                    android:layout_height="0.5dp"
+                    android:layout_marginBottom="8dp"
+                    android:layout_marginTop="8dp"
+                    android:background="#d8d8d8" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="2"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:textColor="#313131"
+                    android:textSize="18sp"
+                    bind:htmlFormat='@{viewModel.mModel.title ?? ""}'
+                    tools:text="title" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:textColor="#313131"
+                    android:textSize="16sp"
+                    bind:htmlFormat='@{viewModel.mModel.contents ?? ""}'
+                    tools:text="contents" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:text="@{viewModel.getDate(viewModel.mModel.date)}"
+                    android:textColor="#b3b3b3"
+                    android:textSize="14sp"
+                    tools:text="오늘, 어제, 그외 (YYYY년 MM월 DD일)" />
+
+                <View
+                    android:layout_width="wrap_content"
+                    android:layout_height="0.5dp"
+                    android:layout_marginBottom="8dp"
+                    android:layout_marginTop="8dp"
+                    android:background="#d8d8d8" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:layout_weight="1"
+                        android:paddingLeft="10dp"
+                        android:text='@{viewModel.mModel.url ?? ""}'
+                        android:textColor="#4E4E4E"
+                        android:textSize="14sp"
+                        tools:text="http://www.daum.net" />
+
+                    <android.support.v7.widget.AppCompatImageView
+                        android:id="@+id/iv_web"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_centerVertical="true"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="13dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:clickable="true"
+                        android:onClick="@{(v) -> viewModel.onClick(v, viewModel.mModel)}"
+                        app:srcCompat="@drawable/ico_detail_web" />
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+
+</layout>

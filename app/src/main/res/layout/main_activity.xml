@@ -37,6 +37,7 @@
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
                 android:textColor="#313131"
+                android:textSize="18sp"
                 android:textStyle="bold"
                 tools:text="검색어 입력" />
 

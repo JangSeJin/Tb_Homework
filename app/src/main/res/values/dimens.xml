@@ -4,5 +4,9 @@
     <!-- main -->
     <dimen name="main_thumbnail">80dp</dimen>
 
+    <!-- detail -->
+    <dimen name="detail_thumbnail">200dp</dimen>
+
+
 
 </resources>

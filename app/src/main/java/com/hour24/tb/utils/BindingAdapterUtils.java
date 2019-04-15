@@ -237,7 +237,7 @@ public class BindingAdapterUtils {
      * @param resId
      */
     @BindingAdapter({"backgroundResource"})
-    public static void setColorSchemeResources(final ImageView view, final int resId) {
+    public static void setBackgroundResource(final ImageView view, final int resId) {
         try {
             view.setBackgroundResource(resId);
         } catch (Exception e) {
