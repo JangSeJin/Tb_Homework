@@ -13,6 +13,9 @@ android {
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
+        multiDexEnabled true
+        vectorDrawables.useSupportLibrary = true
+
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
@@ -88,9 +91,8 @@ dependencies {
     implementation "com.squareup.retrofit2:converter-scalars:${rootProject.ext.retrofit}"
     implementation "com.squareup.retrofit2:adapter-rxjava:${rootProject.ext.retrofit}"
 
-//    // kakao
-//    implementation "com.kakao.sdk:usermgmt:${rootProject.ext.kakao}"
-//    implementation "com.kakao.sdk:kakaolink:${rootProject.ext.kakao}"
+    // html
+    implementation 'com.pixplicity.htmlcompat:library:1.1.1'
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'

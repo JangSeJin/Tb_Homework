@@ -1,4 +1,4 @@
-package com.mindlinksw.schoolmeals.utils
+package com.hour24.tb.utils
 
 import android.util.Log
 import com.hour24.tb.utils.Utils

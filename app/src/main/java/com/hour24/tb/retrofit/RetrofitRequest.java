@@ -14,6 +14,7 @@ public class RetrofitRequest {
     public static <T> T createRetrofitJSONService(Context context, final Class<T> classes, final String url) {
 
         OkHttpClient.Builder okHttpClient = new OkHttpClient().newBuilder();
+        okHttpClient.interceptors().add(new AddInterceptor(context));
 
         final Retrofit retrofit = new Retrofit.Builder()
                 .addConverterFactory(GsonConverterFactory.create())
@@ -31,6 +32,7 @@ public class RetrofitRequest {
     public static <T> T createRetrofitScalarsService(Context context, final Class<T> classes, final String url) {
 
         OkHttpClient.Builder okHttpClient = new OkHttpClient().newBuilder();
+        okHttpClient.interceptors().add(new AddInterceptor(context));
 
         final Retrofit retrofit = new Retrofit.Builder()
                 .addConverterFactory(ScalarsConverterFactory.create())

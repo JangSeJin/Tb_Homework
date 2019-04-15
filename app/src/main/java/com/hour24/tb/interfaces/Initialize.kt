@@ -1,4 +1,4 @@
-package com.mindlinksw.schoolmeals.interfaces
+package com.hour24.tb.interfaces
 
 import android.support.annotation.Nullable
 import android.view.View
