@@ -10,5 +10,8 @@
     <string name="main_today">오늘</string>
     <string name="main_yesterday">어제</string>
     <string name="main_type_all">All</string>
+    <string name="main_sort_title">Sort</string>
+    <string name="main_sort_close">닫기</string>
+    <string name="main_sort_adjust">적용</string>
 
 </resources>

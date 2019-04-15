@@ -5,13 +5,12 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
 import com.hour24.tb.R
 import com.hour24.tb.adapter.MainAdapter
-import com.hour24.tb.const.APIConst
+import com.hour24.tb.const.DataConst
 import com.hour24.tb.databinding.MainActivityBinding
 import com.hour24.tb.interfaces.Initialize
 import com.hour24.tb.model.DocumentItem
@@ -25,6 +24,8 @@ import com.hour24.tb.utils.ObjectUtils
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.text.SimpleDateFormat
+import java.util.*
 
 class MainActivity : AppCompatActivity(), Initialize {
 
@@ -45,7 +46,8 @@ class MainActivity : AppCompatActivity(), Initialize {
     private var mIsLast: Boolean = false // 마지막 페이지 여부
     private var mLastItemVisibleFlag: Boolean = false
 
-    var mFilterType = APIConst.FILTER_ALL // 필터
+    var mFilterType = DataConst.FILTER_ALL // 필터
+    var mSortType = DataConst.SORT_TITLE // 정렬
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -136,14 +138,14 @@ class MainActivity : AppCompatActivity(), Initialize {
 
         when (mFilterType) {
 
-            APIConst.FILTER_BLOG, APIConst.FILTER_CAFE -> {
+            DataConst.FILTER_BLOG, DataConst.FILTER_CAFE -> {
                 mViewModel.search(mFilterType, text)
             }
 
             else -> {
                 // 모든 필터 검색
-                mViewModel.search(APIConst.FILTER_BLOG, text)
-                mViewModel.search(APIConst.FILTER_CAFE, text)
+                mViewModel.search(DataConst.FILTER_BLOG, text)
+                mViewModel.search(DataConst.FILTER_CAFE, text)
             }
         }
     }
@@ -162,28 +164,12 @@ class MainActivity : AppCompatActivity(), Initialize {
             }
         }
 
-//        /**
-//         * 자동완성 검색
-//         */
-//        fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-//
-//            try {
-//
-//                Logger.e(TAG, s.toString())
-//                search(APIConst.TYPE_BLOG, s.toString())
-//
-//            } catch (e: Exception) {
-//                e.printStackTrace()
-//            }
-//
-//        }
-
         /**
          * 검색
          */
-        public fun search(filter: String, s: String) {
+        fun search(filter: String, s: String) {
 
-            val service = RetrofitRequest.createRetrofitJSONService(this@MainActivity, KakaoService::class.java, APIConst.HOST)
+            val service = RetrofitRequest.createRetrofitJSONService(this@MainActivity, KakaoService::class.java, DataConst.HOST)
             val call = service.reqKakaoSearch(
                     filter.toLowerCase(),
                     s,
@@ -207,20 +193,24 @@ class MainActivity : AppCompatActivity(), Initialize {
                                 val list = resData.documents
                                 list.forEachIndexed { index, model ->
 
+                                    // 필터 처리
                                     if (!ObjectUtils.isEmpty(model.blogname)) {
-                                        model.filter = APIConst.FILTER_BLOG
+                                        model.filter = DataConst.FILTER_BLOG
+                                    } else if (!ObjectUtils.isEmpty(model.cafename)) {
+                                        model.filter = DataConst.FILTER_CAFE
                                     }
 
-                                    if (!ObjectUtils.isEmpty(model.cafename)) {
-                                        model.filter = APIConst.FILTER_CAFE
-                                    }
+                                    // Date 처리
+                                    val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSX", Locale.KOREA)
+                                    simpleDateFormat.timeZone = TimeZone.getTimeZone("UTC")
+                                    model.date = simpleDateFormat.parse(model.datetime) // api 에서 받아온 날짜
 
                                 }
 
                                 mList.addAll(list)
 
                                 // 정렬
-                                mList.sortBy { it.title }
+                                sort()
 
                                 mAdapter.notifyDataSetChanged()
 
@@ -238,6 +228,23 @@ class MainActivity : AppCompatActivity(), Initialize {
                     Logger.e(TAG, "onFailure : " + t.message)
                 }
             })
+        }
+
+        /**
+         * 정렬
+         */
+        fun sort() {
+            try {
+
+                if (mSortType == DataConst.SORT_TITLE) {
+                    mList.sortBy { it.title }
+                } else if (mSortType == DataConst.SORT_DATETIME) {
+                    mList.sortBy { it.date }
+                }
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
 
         /**

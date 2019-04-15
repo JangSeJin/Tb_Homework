@@ -1,5 +1,7 @@
 package com.hour24.tb.model
 
+import java.util.*
+
 //{
 //    "meta": {
 //    "total_count": 5,
@@ -34,7 +36,8 @@ data class DocumentItem(var filter: String,
                         val cafename: String, // cafe 이름
                         val name: String, // blog, cafe name 통합
                         val thumbnail: String,
-                        val datetime: String
+                        val datetime: String,
+                        var date: Date
 )
 
 

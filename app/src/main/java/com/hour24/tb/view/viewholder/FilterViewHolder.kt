@@ -6,11 +6,14 @@ import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.widget.ArrayAdapter
 import com.hour24.tb.R
-import com.hour24.tb.const.APIConst
+import com.hour24.tb.const.DataConst
 import com.hour24.tb.databinding.MainFilterBinding
 import com.hour24.tb.interfaces.Initialize
 import com.hour24.tb.utils.Utils
 import com.hour24.tb.view.activity.MainActivity
+import android.support.v7.app.AlertDialog
+import com.hour24.tb.utils.Logger
+import com.hour24.tb.utils.ObjectUtils
 
 
 class FilterViewHolder(private val mActivity: MainActivity,
@@ -21,7 +24,8 @@ class FilterViewHolder(private val mActivity: MainActivity,
     private val mView: View = mBinding.root
     private val mViewModel: ViewModel = ViewModel()
 
-    private val mTypeList = ArrayList<String>()
+    private val mFilterList = ArrayList<String>()
+    private var mSortList = ArrayList<String>()
 
     init {
 
@@ -42,13 +46,15 @@ class FilterViewHolder(private val mActivity: MainActivity,
 
     override fun initVariable() {
 
-        // 초기값
-        mViewModel.mFilter.set(APIConst.FILTER_ALL)
+        // 필터
+        mViewModel.mFilter.set(DataConst.FILTER_ALL) // 초기값
+        mFilterList.add(DataConst.FILTER_ALL)
+        mFilterList.add(DataConst.FILTER_BLOG)
+        mFilterList.add(DataConst.FILTER_CAFE)
 
-        // list box에 보여줄 데이터 미리 세팅
-        mTypeList.add(APIConst.FILTER_ALL)
-        mTypeList.add(APIConst.FILTER_BLOG)
-        mTypeList.add(APIConst.FILTER_CAFE)
+        // 정렬
+        mSortList.add(DataConst.SORT_TITLE)
+        mSortList.add(DataConst.SORT_DATETIME)
 
     }
 
@@ -73,25 +79,28 @@ class FilterViewHolder(private val mActivity: MainActivity,
 
         fun onClick(v: View) {
 
-            try {
+            mActivity.runOnUiThread({
 
-                when (v.id) {
+                try {
 
-                    R.id.tv_filter -> { // 필터 클릭
+                    when (v.id) {
 
-                        mActivity.runOnUiThread(Runnable {
+                        R.id.tv_filter -> { // 필터 클릭
+
 
                             val popupWindow = ListPopupWindow(v.context)
                             popupWindow.width = Utils.getDpFromPx(v.context, 400.toFloat()).toInt()
                             popupWindow.anchorView = v
-                            popupWindow.setAdapter(ArrayAdapter(v.context, R.layout.main_filter_item, mTypeList))
+                            popupWindow.setAdapter(ArrayAdapter(v.context, R.layout.main_filter_item, mFilterList))
 
                             popupWindow.setOnItemClickListener { parent, view, menuPosition, id ->
 
                                 try {
 
-                                    val filter: String = mTypeList[menuPosition]
+                                    val filter: String = mFilterList[menuPosition]
                                     mFilter.set(filter)
+
+                                    // 재검색
                                     mActivity.mFilterType = filter
                                     mActivity.checkFilter(true)
 
@@ -104,14 +113,55 @@ class FilterViewHolder(private val mActivity: MainActivity,
 
                             popupWindow.show()
 
-                        })
+                        }
 
+                        R.id.iv_sort -> { // 정렬 클릭
+
+                            var tempSort: String? = null // 정렬 임시값
+
+                            val listItems = arrayOf(DataConst.SORT_TITLE, DataConst.SORT_DATETIME)
+                            val checkedItem =
+                                    if (mActivity.mSortType == DataConst.SORT_TITLE) {
+                                        0
+                                    } else {
+                                        1
+                                    }
+
+                            val builder =
+                                    AlertDialog.Builder(mActivity)
+                                            .setTitle(mActivity.getString(R.string.main_sort_title))
+                                            .setSingleChoiceItems(listItems, checkedItem) { dialog, which ->
+                                                // Radio 클릭
+                                                tempSort = mSortList[which]
+                                            }
+                                            .setPositiveButton(mActivity.getString(R.string.main_sort_close)) { dialog, which ->
+                                                dialog.dismiss()
+                                            }
+                                            .setNegativeButton(mActivity.getString(R.string.main_sort_adjust)) { dialog, which ->
+
+                                                // 재검색
+                                                if (!ObjectUtils.isEmpty(tempSort)) {
+                                                    mActivity.mSortType = tempSort!!
+                                                    mActivity.checkFilter(true)
+
+                                                    dialog.dismiss()
+                                                }
+
+                                            }
+
+                            val dialog = builder.create()
+                            dialog.show()
+
+
+                        }
                     }
+
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
 
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+            })
+
 
         }
 
