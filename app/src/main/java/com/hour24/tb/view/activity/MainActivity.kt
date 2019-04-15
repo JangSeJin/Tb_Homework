@@ -2,6 +2,8 @@ package com.hour24.tb.view.activity
 
 import android.databinding.DataBindingUtil
 import android.os.Bundle
+import android.support.design.widget.Snackbar
+import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -60,7 +62,7 @@ class MainActivity : AppCompatActivity(), Initialize {
         initEventListener()
 
         mBinding.etSearch.setText("강남")
-        checkFilter(true)
+        actionSearch(true)
     }
 
     /**
@@ -78,6 +80,7 @@ class MainActivity : AppCompatActivity(), Initialize {
      */
     override fun initLayout(view: View?) {
 
+        // manager
         mBinding.rvMain.layoutManager = mLayoutManager
 
     }
@@ -102,12 +105,10 @@ class MainActivity : AppCompatActivity(), Initialize {
             mBinding.etSearch.imeOptions = EditorInfo.IME_ACTION_SEARCH
             mBinding.etSearch.setOnEditorActionListener(TextView.OnEditorActionListener { v, actionId, event ->
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+
                     try {
 
-                        val text = v.text.toString()
-                        if (!ObjectUtils.isEmpty(text)) {
-                            checkFilter(true)
-                        }
+                        actionSearch(true)
 
                     } catch (e: Exception) {
                         e.printStackTrace()
@@ -126,16 +127,23 @@ class MainActivity : AppCompatActivity(), Initialize {
     }
 
     /**
-     * 검색하기전 필터 체크
+     * 검색 프로세스
      */
-    public fun checkFilter(clear: Boolean) {
+    fun actionSearch(clear: Boolean) {
 
+        // 리스트 클리어 여부
         if (clear) {
             mList.clear()
         }
 
+        // 검색어 공백 체크
         val text = mBinding.etSearch.text.toString()
+        if (ObjectUtils.isEmpty(text)) {
+            Snackbar.make(mBinding.root, R.string.main_empty_text, Snackbar.LENGTH_SHORT).show()
+            return
+        }
 
+        // 필터체크
         when (mFilterType) {
 
             DataConst.FILTER_BLOG, DataConst.FILTER_CAFE -> {
@@ -148,6 +156,12 @@ class MainActivity : AppCompatActivity(), Initialize {
                 mViewModel.search(DataConst.FILTER_CAFE, text)
             }
         }
+
+        // 키보드 내림
+        runOnUiThread {
+            Utils.setKeyboardShowHide(this@MainActivity, mBinding.root, false)
+        }
+
     }
 
     /**
@@ -159,7 +173,7 @@ class MainActivity : AppCompatActivity(), Initialize {
             when (v.id) {
                 R.id.iv_search -> {
                     // 검색버튼
-                    checkFilter(true)
+                    actionSearch(true)
                 }
             }
         }
@@ -222,6 +236,7 @@ class MainActivity : AppCompatActivity(), Initialize {
                     } catch (e: Exception) {
                         e.printStackTrace()
                     }
+
                 }
 
                 override fun onFailure(call: Call<SearchModel>, t: Throwable) {
@@ -255,7 +270,7 @@ class MainActivity : AppCompatActivity(), Initialize {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 if (newState == RecyclerView.SCROLL_STATE_IDLE && mLastItemVisibleFlag) {
                     if (!mIsLoading && !mIsLast) {
-                        checkFilter(false)
+                        actionSearch(false)
                     }
                 }
             }

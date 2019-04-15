@@ -13,5 +13,6 @@
     <string name="main_sort_title">Sort</string>
     <string name="main_sort_close">닫기</string>
     <string name="main_sort_adjust">적용</string>
+    <string name="main_empty_text">검색어를 입력해주세요.</string>
 
 </resources>

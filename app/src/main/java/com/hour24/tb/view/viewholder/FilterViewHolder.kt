@@ -102,7 +102,7 @@ class FilterViewHolder(private val mActivity: MainActivity,
 
                                     // 재검색
                                     mActivity.mFilterType = filter
-                                    mActivity.checkFilter(true)
+                                    mActivity.actionSearch(true)
 
                                     popupWindow.dismiss()
 
@@ -142,7 +142,7 @@ class FilterViewHolder(private val mActivity: MainActivity,
                                                 // 재검색
                                                 if (!ObjectUtils.isEmpty(tempSort)) {
                                                     mActivity.mSortType = tempSort!!
-                                                    mActivity.checkFilter(true)
+                                                    mActivity.actionSearch(true)
 
                                                     dialog.dismiss()
                                                 }
