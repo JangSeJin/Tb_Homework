@@ -12,7 +12,7 @@
 
         <variable
             name="viewModel"
-            type="com.hour24.tb.view.viewholder.SearchItemViewHolder.ViewModel" />
+            type="com.hour24.tb.view.viewholder.SearchViewHolder.ViewModel" />
 
     </data>
 
@@ -24,13 +24,12 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="5dp"
+                android:layout_margin="10dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:clickable="true"
                 android:gravity="center_vertical"
@@ -51,7 +50,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@{viewModel.getTypeName(viewModel.mModel.type)}"
+                            android:text="@{viewModel.mModel.filter}"
                             android:textColor="#000000"
                             tools:text="blog" />
 
@@ -99,15 +98,18 @@
                 <ImageView
                     android:layout_width="80dp"
                     android:layout_height="80dp"
+                    android:layout_marginLeft="5dp"
                     android:scaleType="centerCrop"
                     android:visibility="@{!ObjectUtils.isEmpty(viewModel.mModel.thumbnail) ? View.VISIBLE : View.GONE}"
+                    bind:height="@{@dimen/main_thumbnail}"
                     bind:loadImage='@{viewModel.mModel.thumbnail ?? ""}'
+                    bind:width="@{@dimen/main_thumbnail}"
                     tools:src="@mipmap/ic_launcher" />
             </LinearLayout>
 
             <View
                 android:layout_width="wrap_content"
-                android:layout_height="0.3dp"
+                android:layout_height="0.5dp"
                 android:background="#d8d8d8" />
         </LinearLayout>
 

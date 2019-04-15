@@ -6,12 +6,52 @@
 
     <data>
 
+        <variable
+            name="viewModel"
+            type="com.hour24.tb.view.viewholder.FilterViewHolder.ViewModel" />
+
     </data>
 
-    <android.support.constraint.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#ffffff">
+        android:background="#ffffff"
+        android:orientation="vertical">
 
-    </android.support.constraint.ConstraintLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tv_filter"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:gravity="center_vertical"
+                android:onClick="@{(v) -> viewModel.onClick(v)}"
+                android:paddingLeft="10dp"
+                android:text="@{viewModel.mFilter}"
+                android:textColor="#313131"
+                android:textSize="15sp"
+                tools:text="ALL" />
+
+            <android.support.v7.widget.AppCompatImageView
+                android:id="@+id/iv_sort"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_gravity="center"
+                android:layout_marginRight="10dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:onClick="@{(v) -> viewModel.onClick(v)}"
+                app:srcCompat="@drawable/ic_main_sort" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="#d8d8d8" />
+    </LinearLayout>
 </layout>

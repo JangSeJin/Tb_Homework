@@ -5,17 +5,19 @@ import android.support.v7.widget.RecyclerView
 import android.view.View
 import com.hour24.tb.R
 import com.hour24.tb.const.APIConst
-import com.hour24.tb.databinding.MainSearchItemBinding
+import com.hour24.tb.databinding.MainSearchBinding
 import com.hour24.tb.model.DocumentItem
+import com.hour24.tb.utils.Logger
+import com.hour24.tb.utils.ObjectUtils
 import java.text.SimpleDateFormat
 import java.util.*
 
 
-class SearchItemViewHolder(private val mActivity: Activity,
-                           private val mBinding: MainSearchItemBinding)
+class SearchViewHolder(private val mActivity: Activity,
+                       private val mBinding: MainSearchBinding)
     : RecyclerView.ViewHolder(mBinding.root) {
 
-    private val TAG = SearchItemViewHolder::class.java.name
+    private val TAG = SearchViewHolder::class.java.name
     private val mView: View = mBinding.root
 
 
@@ -59,30 +61,15 @@ class SearchItemViewHolder(private val mActivity: Activity,
         }
 
         /**
-         * blog, cafe name
-         */
-        fun getTypeName(type: String): String {
-
-            try {
-                return if (APIConst.TYPE_BLOG == type) {
-                    mActivity.getString(R.string.main_type_blog)
-                } else {
-                    mActivity.getString(R.string.main_type_cafe)
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-
-            return ""
-        }
-
-        /**
          * 타이틀 추출
          */
         fun getName(model: DocumentItem): String {
 
             try {
-                return if (model.type == APIConst.TYPE_BLOG) {
+
+                Logger.e(TAG, model.filter)
+
+                return if (model.filter == APIConst.FILTER_BLOG) {
                     model.blogname
                 } else {
                     model.cafename

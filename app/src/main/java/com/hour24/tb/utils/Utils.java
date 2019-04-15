@@ -10,6 +10,7 @@ import android.content.pm.Signature;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
@@ -47,6 +48,22 @@ public class Utils {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * @param context context
+     * @param dp      dp
+     * @author 장세진
+     * @description Get DP
+     */
+    public static float getDpFromPx(Context context, float dp) {
+        try {
+            return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, context.getResources().getDisplayMetrics());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return dp;
     }
 
     /**

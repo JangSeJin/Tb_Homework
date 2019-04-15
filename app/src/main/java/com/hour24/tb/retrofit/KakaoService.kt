@@ -16,9 +16,9 @@ interface KakaoService {
      *
      * @return
      */
-    @GET("/v2/search/{type}")
+    @GET("/v2/search/{filter}")
     fun reqKakaoSearch(
-            @Path("type") type: String,
+            @Path("filter") type: String,
             @Query("query") query: String,
             @Query("sort") sort: String,
             @Query("page") page: Int,

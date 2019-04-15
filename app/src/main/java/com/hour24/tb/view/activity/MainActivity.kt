@@ -5,7 +5,10 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.view.KeyEvent
 import android.view.View
+import android.view.inputmethod.EditorInfo
+import android.widget.TextView
 import com.hour24.tb.R
 import com.hour24.tb.adapter.MainAdapter
 import com.hour24.tb.const.APIConst
@@ -18,6 +21,7 @@ import com.hour24.tb.retrofit.RetrofitCall
 import com.hour24.tb.retrofit.RetrofitRequest
 import com.hour24.tb.utils.Utils
 import com.hour24.tb.utils.Logger
+import com.hour24.tb.utils.ObjectUtils
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -35,11 +39,13 @@ class MainActivity : AppCompatActivity(), Initialize {
     private var mLayoutManager: LinearLayoutManager = LinearLayoutManager(this)
 
     // paging
-    private var mCurPageNo: Int = 0 // 페이지 넘버
-    private val mPageSize: Int = 10 // 가져올 아이템 갯수
+    private var mCurPageNo: Int = 1 // 페이지 넘버
+    private val mPageSize: Int = 25 // 가져올 아이템 갯수
     private var mIsLoading: Boolean = false
     private var mIsLast: Boolean = false // 마지막 페이지 여부
     private var mLastItemVisibleFlag: Boolean = false
+
+    var mFilterType = APIConst.FILTER_ALL // 필터
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,7 +57,8 @@ class MainActivity : AppCompatActivity(), Initialize {
         initVariable()
         initEventListener()
 
-        mViewModel.search(APIConst.TYPE_BLOG, "서")
+        mBinding.etSearch.setText("강남")
+        checkFilter(true)
     }
 
     /**
@@ -90,11 +97,55 @@ class MainActivity : AppCompatActivity(), Initialize {
 
         try {
 
+            mBinding.etSearch.imeOptions = EditorInfo.IME_ACTION_SEARCH
+            mBinding.etSearch.setOnEditorActionListener(TextView.OnEditorActionListener { v, actionId, event ->
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    try {
+
+                        val text = v.text.toString()
+                        if (!ObjectUtils.isEmpty(text)) {
+                            checkFilter(true)
+                        }
+
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+
+                    return@OnEditorActionListener true
+                }
+
+                false
+            })
+
         } catch (e: Exception) {
             e.printStackTrace()
         }
 
+    }
 
+    /**
+     * 검색하기전 필터 체크
+     */
+    public fun checkFilter(clear: Boolean) {
+
+        if (clear) {
+            mList.clear()
+        }
+
+        val text = mBinding.etSearch.text.toString()
+
+        when (mFilterType) {
+
+            APIConst.FILTER_BLOG, APIConst.FILTER_CAFE -> {
+                mViewModel.search(mFilterType, text)
+            }
+
+            else -> {
+                // 모든 필터 검색
+                mViewModel.search(APIConst.FILTER_BLOG, text)
+                mViewModel.search(APIConst.FILTER_CAFE, text)
+            }
+        }
     }
 
     /**
@@ -106,39 +157,39 @@ class MainActivity : AppCompatActivity(), Initialize {
             when (v.id) {
                 R.id.iv_search -> {
                     // 검색버튼
-                    search(APIConst.TYPE_BLOG, mBinding.etSearch.text.toString())
+                    checkFilter(true)
                 }
             }
         }
 
-        /**
-         * 자동완성 검색
-         */
-        fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-
-            try {
-
-                Logger.e(TAG, s.toString())
-                search(APIConst.TYPE_BLOG, s.toString())
-
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-
-        }
+//        /**
+//         * 자동완성 검색
+//         */
+//        fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+//
+//            try {
+//
+//                Logger.e(TAG, s.toString())
+//                search(APIConst.TYPE_BLOG, s.toString())
+//
+//            } catch (e: Exception) {
+//                e.printStackTrace()
+//            }
+//
+//        }
 
         /**
          * 검색
          */
-        public fun search(type: String, s: String) {
+        public fun search(filter: String, s: String) {
 
             val service = RetrofitRequest.createRetrofitJSONService(this@MainActivity, KakaoService::class.java, APIConst.HOST)
             val call = service.reqKakaoSearch(
-                    type,
+                    filter.toLowerCase(),
                     s,
                     "accuracy",
-                    1,
-                    25)
+                    mCurPageNo,
+                    mPageSize)
 
             RetrofitCall.enqueueWithRetry(call, object : Callback<SearchModel> {
 
@@ -150,15 +201,30 @@ class MainActivity : AppCompatActivity(), Initialize {
                             val resData = response.body()
 
                             if (resData != null) {
+
                                 Logger.e(TAG, resData.toString())
 
-                                mList.addAll(resData.documents)
+                                val list = resData.documents
+                                list.forEachIndexed { index, model ->
 
-                                mList.forEachIndexed { index, model ->
-                                    model.type = type
+                                    if (!ObjectUtils.isEmpty(model.blogname)) {
+                                        model.filter = APIConst.FILTER_BLOG
+                                    }
+
+                                    if (!ObjectUtils.isEmpty(model.cafename)) {
+                                        model.filter = APIConst.FILTER_CAFE
+                                    }
+
                                 }
 
+                                mList.addAll(list)
+
+                                // 정렬
+                                mList.sortBy { it.title }
+
                                 mAdapter.notifyDataSetChanged()
+
+                                mCurPageNo++
 
                             }
                         }
@@ -182,7 +248,7 @@ class MainActivity : AppCompatActivity(), Initialize {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 if (newState == RecyclerView.SCROLL_STATE_IDLE && mLastItemVisibleFlag) {
                     if (!mIsLoading && !mIsLast) {
-//                        getData(false)
+                        checkFilter(false)
                     }
                 }
             }
