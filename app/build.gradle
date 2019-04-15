@@ -1,9 +1,12 @@
 apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android' // plugin 필수
+apply plugin: 'kotlin-kapt' // user data binding
 apply plugin: 'kotlin-android-extensions'
 
 android {
+
     compileSdkVersion 28
+
     defaultConfig {
         applicationId "com.hour24.tb"
         minSdkVersion 19
@@ -12,10 +15,50 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
+
+    kapt {
+        mapDiagnosticLocations = true
+    }
+
+    dataBinding {
+        enabled = true
+    }
+
+    dexOptions {
+        jumboMode true
+        javaMaxHeapSize "Xg"
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+    configurations {
+        cleanedAnnotations
+        compile.exclude group: 'org.jetbrains', module: 'annotations'
+    }
+
     buildTypes {
+
+        debug {
+
+        }
+
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            def appName = 'tb'
+            def buildType = buildType.name // debug, release
+            def date = new Date().format('yyMMddHHmm')
+            def apkName = appName + '_' + buildType + '_' + date + '.apk'
+
+            // apk 추출
+            outputFileName = apkName
         }
     }
 }
@@ -29,6 +72,11 @@ dependencies {
 
     // multi dex
     implementation 'com.android.support:multidex:1.0.3'
+
+    // supportLibrary
+    implementation "com.android.support:appcompat-v7:${rootProject.ext.support_library}"
+    implementation "com.android.support:recyclerview-v7:${rootProject.ext.support_library}"
+    implementation "com.android.support:design:${rootProject.ext.support_library}"
 
     // glide
     implementation "com.github.bumptech.glide:glide:${rootProject.ext.glide}"

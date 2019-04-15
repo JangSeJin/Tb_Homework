@@ -1,8 +1,8 @@
-package com.hour24.tb
+package com.hour24.tb.view.activity
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import com.hour24.teamblind.R
+import com.hour24.tb.R
 
 class MainActivity : AppCompatActivity() {
 
