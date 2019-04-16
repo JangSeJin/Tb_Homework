@@ -1,5 +1,6 @@
 package com.hour24.tb.view.activity
 
+import android.annotation.SuppressLint
 import android.databinding.DataBindingUtil
 import android.os.AsyncTask
 import android.os.Bundle
@@ -67,9 +68,6 @@ class MainActivity : AppCompatActivity(), Initialize {
         initVariable()
         initEventListener()
 
-        mBinding.etSearch.setText("강남")
-        actionSearch(true)
-
     }
 
     /**
@@ -128,6 +126,51 @@ class MainActivity : AppCompatActivity(), Initialize {
                 false
             })
 
+            // 최근검색 포커싱
+            mBinding.etSearch.onFocusChangeListener = View.OnFocusChangeListener { v, b ->
+
+                if (!b) {
+                    return@OnFocusChangeListener
+                }
+
+                val loadData = @SuppressLint("StaticFieldLeak")
+                object : AsyncTask<Unit, Unit, MutableList<Recent>>() {
+
+                    override fun doInBackground(vararg params: Unit?): MutableList<Recent> {
+                        return AppDatabase.getInstance(this@MainActivity).recentDao().selectAll()
+
+                    }
+
+                    override fun onPostExecute(result: MutableList<Recent>) {
+                        super.onPostExecute(result)
+
+                        val list = ArrayList<String>()
+                        result.forEach({
+                            list.add(it.search)
+                        })
+
+                        val popupWindow = ListPopupWindow(v.context)
+                        popupWindow.anchorView = v
+                        popupWindow.setAdapter(ArrayAdapter(v.context, R.layout.main_recent_item, list))
+                        popupWindow.setOnItemClickListener { parent, view, menuPosition, id ->
+
+                            try {
+                                mBinding.etSearch.setText(list[menuPosition])
+
+                                actionSearch(true)
+                                popupWindow.dismiss()
+
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
+                        }
+                        popupWindow.show()
+                    }
+                }
+                loadData.execute()
+
+            }
+
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -140,6 +183,9 @@ class MainActivity : AppCompatActivity(), Initialize {
     fun actionSearch(clear: Boolean) {
 
         try {
+
+            // 포커스 해제
+            mBinding.etSearch.clearFocus()
 
             // 리스트 클리어 여부
             if (clear) {
@@ -189,41 +235,6 @@ class MainActivity : AppCompatActivity(), Initialize {
                 R.id.iv_search -> {
                     // 검색버튼
                     actionSearch(true)
-                }
-
-                R.id.et_search -> {
-                    // 검색 EditText 클릭
-
-                    AppDatabase.select {
-
-                        val list = ArrayList<String>()
-                        it.forEach({
-                            list.add(it.search)
-                        })
-
-                        runOnUiThread({
-
-                            val popupWindow = ListPopupWindow(v.context)
-                            popupWindow.anchorView = v
-                            popupWindow.setAdapter(ArrayAdapter(v.context, R.layout.main_recent_item, list))
-                            popupWindow.setOnItemClickListener { parent, view, menuPosition, id ->
-
-                                try {
-
-                                    mBinding.etSearch.setText(list[menuPosition])
-
-                                    actionSearch(true)
-                                    popupWindow.dismiss()
-
-                                } catch (e: Exception) {
-                                    e.printStackTrace()
-                                }
-
-                            }
-                            popupWindow.show()
-                        })
-
-                    }
                 }
             }
         }

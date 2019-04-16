@@ -54,7 +54,6 @@
                 android:layout_marginRight="8dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:clickable="true"
-                android:onClick="@{(v) -> viewModel.onClick(v)}"
                 app:srcCompat="@drawable/ic_main_search" />
         </LinearLayout>
 
