@@ -1,14 +1,16 @@
 package com.hour24.tb.view.activity
 
 import android.databinding.DataBindingUtil
+import android.os.AsyncTask
 import android.os.Bundle
 import android.support.design.widget.Snackbar
-import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.ListPopupWindow
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import android.widget.ArrayAdapter
 import android.widget.TextView
 import com.hour24.tb.R
 import com.hour24.tb.adapter.MainAdapter
@@ -20,14 +22,18 @@ import com.hour24.tb.model.SearchModel
 import com.hour24.tb.retrofit.KakaoService
 import com.hour24.tb.retrofit.RetrofitCall
 import com.hour24.tb.retrofit.RetrofitRequest
-import com.hour24.tb.utils.Utils
+import com.hour24.tb.room.AppDatabase
+import com.hour24.tb.room.recent.Recent
 import com.hour24.tb.utils.Logger
 import com.hour24.tb.utils.ObjectUtils
+import com.hour24.tb.utils.Utils
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
+
 
 class MainActivity : AppCompatActivity(), Initialize {
 
@@ -37,13 +43,13 @@ class MainActivity : AppCompatActivity(), Initialize {
     private lateinit var mViewModel: ViewModel
 
     // Array, Adapter, layout manager
-    private val mList: ArrayList<DocumentItem> = ArrayList()
     private lateinit var mAdapter: MainAdapter
     private var mLayoutManager: LinearLayoutManager = LinearLayoutManager(this)
+    private val mList: ArrayList<DocumentItem> = ArrayList()
 
     // paging
     private var mCurPageNo: Int = 1 // 페이지 넘버
-    private val mPageSize: Int = 25 // 가져올 아이템 갯수
+    private val mPageSize: Int = 10 // 가져올 아이템 갯수
     private var mIsLoading: Boolean = false
     private var mIsLast: Boolean = false // 마지막 페이지 여부
     private var mLastItemVisibleFlag: Boolean = false
@@ -63,6 +69,7 @@ class MainActivity : AppCompatActivity(), Initialize {
 
         mBinding.etSearch.setText("강남")
         actionSearch(true)
+
     }
 
     /**
@@ -90,6 +97,7 @@ class MainActivity : AppCompatActivity(), Initialize {
      */
     override fun initVariable() {
 
+        // Main Adapter
         mAdapter = MainAdapter(this, mList, supportFragmentManager)
         mBinding.rvMain.adapter = mAdapter
 
@@ -131,35 +139,39 @@ class MainActivity : AppCompatActivity(), Initialize {
      */
     fun actionSearch(clear: Boolean) {
 
-        // 리스트 클리어 여부
-        if (clear) {
-            mList.clear()
-        }
+        try {
 
-        // 검색어 공백 체크
-        val text = mBinding.etSearch.text.toString()
-        if (ObjectUtils.isEmpty(text)) {
-            Snackbar.make(mBinding.root, R.string.main_empty_text, Snackbar.LENGTH_SHORT).show()
-            return
-        }
-
-        // 필터체크
-        when (mFilterType) {
-
-            DataConst.FILTER_BLOG, DataConst.FILTER_CAFE -> {
-                mViewModel.search(mFilterType, text)
+            // 리스트 클리어 여부
+            if (clear) {
+                mList.clear()
             }
 
-            else -> {
-                // 모든 필터 검색
-                mViewModel.search(DataConst.FILTER_BLOG, text)
-                mViewModel.search(DataConst.FILTER_CAFE, text)
+            // 검색어 공백 체크
+            val text = mBinding.etSearch.text.toString()
+            if (ObjectUtils.isEmpty(text)) {
+                Snackbar.make(mBinding.root, R.string.main_empty_text, Snackbar.LENGTH_SHORT).show()
+                return
             }
-        }
 
-        // 키보드 내림
-        runOnUiThread {
-            Utils.setKeyboardShowHide(this@MainActivity, mBinding.root, false)
+            // 필터체크
+            when (mFilterType) {
+
+                DataConst.FILTER_BLOG, DataConst.FILTER_CAFE -> {
+                    mViewModel.search(mFilterType, text)
+                }
+
+                else -> {
+                    // 모든 필터 검색
+                    mViewModel.search(DataConst.FILTER_BLOG, text)
+                    mViewModel.search(DataConst.FILTER_CAFE, text)
+                }
+            }
+
+            // 최근검색 저장
+            AppDatabase.insert(text)
+
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
 
     }
@@ -169,11 +181,49 @@ class MainActivity : AppCompatActivity(), Initialize {
      */
     inner class ViewModel {
 
+        // 최근검색
+        var mModel: Recent? = null
+
         fun onClick(v: View) {
             when (v.id) {
                 R.id.iv_search -> {
                     // 검색버튼
                     actionSearch(true)
+                }
+
+                R.id.et_search -> {
+                    // 검색 EditText 클릭
+
+                    AppDatabase.select {
+
+                        val list = ArrayList<String>()
+                        it.forEach({
+                            list.add(it.search)
+                        })
+
+                        runOnUiThread({
+
+                            val popupWindow = ListPopupWindow(v.context)
+                            popupWindow.anchorView = v
+                            popupWindow.setAdapter(ArrayAdapter(v.context, R.layout.main_recent_item, list))
+                            popupWindow.setOnItemClickListener { parent, view, menuPosition, id ->
+
+                                try {
+
+                                    mBinding.etSearch.setText(list[menuPosition])
+
+                                    actionSearch(true)
+                                    popupWindow.dismiss()
+
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                }
+
+                            }
+                            popupWindow.show()
+                        })
+
+                    }
                 }
             }
         }

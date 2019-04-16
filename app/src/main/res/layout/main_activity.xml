@@ -6,19 +6,22 @@
 
     <data>
 
+        <import type="android.view.View" />
+
         <variable
             name="viewModel"
             type="com.hour24.tb.view.activity.MainActivity.ViewModel" />
 
     </data>
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#ffffff"
         android:orientation="vertical">
 
         <LinearLayout
+            android:id="@+id/ll_header"
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:background="@android:color/white"
@@ -31,9 +34,11 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:background="@null"
+                android:clickable="true"
                 android:hint="@string/main_search_hint"
                 android:inputType="text"
                 android:maxLines="1"
+                android:onClick="@{(v) -> viewModel.onClick(v)}"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
                 android:textColor="#313131"
@@ -53,12 +58,14 @@
                 app:srcCompat="@drawable/ic_main_search" />
         </LinearLayout>
 
+        <!-- 검색 리스트 -->
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rv_main"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_below="@id/ll_header"
             android:addOnScrollListener="@{viewModel.mOnScrollListener}"
             android:scrollbars="vertical"
             bind:itemAnimator="@{false}" />
-    </LinearLayout>
+    </RelativeLayout>
 </layout>

@@ -14,8 +14,10 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.hour24.tb.R;
 import com.pixplicity.htmlcompat.HtmlCompat;
 
 import java.text.SimpleDateFormat;
@@ -280,6 +282,29 @@ public class BindingAdapterUtils {
         } catch (Exception e) {
             e.printStackTrace();
             view.setText(html);
+        }
+    }
+
+    /**
+     * @author 장세진
+     * @description 최근검색 레이아웃 높이
+     */
+    @BindingAdapter({"recent_height"})
+    public static void setRecentHeight(View view, int listSize) {
+        try {
+
+            int height;
+            if (listSize < 5) {
+                height = LinearLayout.LayoutParams.WRAP_CONTENT;
+            } else {
+                height = view.getResources().getDimensionPixelSize(R.dimen.recent_max_height);
+            }
+
+            view.getLayoutParams().height = height;
+            view.requestLayout();
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

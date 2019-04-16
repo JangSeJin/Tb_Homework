@@ -42,7 +42,7 @@
                 android:layout_height="match_parent"
                 android:ellipsize="end"
                 android:gravity="center"
-                android:maxLength="13"
+                android:maxLength="15"
                 android:maxLines="1"
                 android:textColor="#313131"
                 android:textSize="18sp"

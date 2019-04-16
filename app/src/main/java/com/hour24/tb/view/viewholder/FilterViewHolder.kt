@@ -89,7 +89,6 @@ class FilterViewHolder(private val mActivity: MainActivity,
 
 
                             val popupWindow = ListPopupWindow(v.context)
-                            popupWindow.width = Utils.getDpFromPx(v.context, 400.toFloat()).toInt()
                             popupWindow.anchorView = v
                             popupWindow.setAdapter(ArrayAdapter(v.context, R.layout.main_filter_item, mFilterList))
 
