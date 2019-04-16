@@ -3,16 +3,17 @@ package com.hour24.tb.view.activity
 import android.content.Intent
 import android.databinding.DataBindingUtil
 import android.databinding.ObservableField
+import android.os.AsyncTask
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
-
 import com.hour24.tb.R
-import com.hour24.tb.const.RequestConst
-import com.hour24.tb.interfaces.Initialize
 import com.hour24.tb.databinding.DetailActivityBinding
+import com.hour24.tb.interfaces.Initialize
 import com.hour24.tb.model.DocumentItem
 import com.hour24.tb.model.WebModel
+import com.hour24.tb.room.AppDatabase
+import com.hour24.tb.room.read.Read
 import com.hour24.tb.utils.TextFormatUtils
 import java.util.*
 
@@ -47,8 +48,14 @@ class DetailActivity : AppCompatActivity(), Initialize {
 
     override fun initVariable() {
 
-        val intent = intent
-        mViewModel.mModel.set(intent.getSerializableExtra(DocumentItem::class.java.name) as DocumentItem)
+        try {
+
+            val intent = intent
+            mViewModel.mModel.set(intent.getSerializableExtra(DocumentItem::class.java.name) as DocumentItem)
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
 
     }
 
@@ -81,6 +88,10 @@ class DetailActivity : AppCompatActivity(), Initialize {
                     intent.putExtra(WebModel::class.java.name, web)
                     startActivity(intent)
 
+                    // URL 저장
+                    AsyncTask.execute({
+                        AppDatabase.getInstance(this@DetailActivity).readDAO().insert(Read(model.url))
+                    })
                 }
             }
         }

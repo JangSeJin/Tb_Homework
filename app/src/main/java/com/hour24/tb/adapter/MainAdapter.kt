@@ -12,7 +12,7 @@ import android.view.ViewGroup
 import com.hour24.tb.R
 import com.hour24.tb.const.Style
 import com.hour24.tb.databinding.MainFilterBinding
-import com.hour24.tb.databinding.MainSearchBinding
+import com.hour24.tb.databinding.MainSearchItemBinding
 import com.hour24.tb.model.DocumentItem
 import com.hour24.tb.view.activity.MainActivity
 import com.hour24.tb.view.viewholder.FilterViewHolder
@@ -67,7 +67,7 @@ class MainAdapter constructor(
 
             // 검색 아이템
                 Style.MAIN.ITEM ->
-                    layoutId = R.layout.main_search
+                    layoutId = R.layout.main_search_item
             }
 
         } catch (e: Exception) {
@@ -121,7 +121,7 @@ class MainAdapter constructor(
                     filter = FilterViewHolder(mActivity as MainActivity, binding as MainFilterBinding)
 
                 Style.MAIN.ITEM ->  // 식단
-                    searchItem = SearchViewHolder(mActivity, binding as MainSearchBinding)
+                    searchItem = SearchViewHolder(mActivity, binding as MainSearchItemBinding)
             }
 
         }

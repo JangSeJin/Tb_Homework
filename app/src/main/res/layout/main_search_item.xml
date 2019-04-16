@@ -21,10 +21,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/selectableItemBackground"
-        android:clickable="true"
         android:onClick="@{(v) -> viewModel.onClick(v, viewModel.mModel)}">
 
         <LinearLayout
+            android:id="@+id/ll_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
@@ -115,8 +115,10 @@
         </LinearLayout>
 
         <View
-            android:id="@+id/v_search"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@id/ll_content"
+            android:layout_alignTop="@id/ll_content"
+            android:background="@{viewModel.mIsRead ? @color/color_dim : @color/color_transparency}" />
     </RelativeLayout>
 </layout>

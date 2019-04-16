@@ -2,31 +2,27 @@ package com.hour24.tb.view.viewholder
 
 import android.app.Activity
 import android.content.Intent
+import android.databinding.ObservableBoolean
+import android.os.AsyncTask
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import com.hour24.tb.R
-import com.hour24.tb.const.DataConst
 import com.hour24.tb.const.RequestConst
-import com.hour24.tb.databinding.MainSearchBinding
+import com.hour24.tb.databinding.MainSearchItemBinding
 import com.hour24.tb.model.DocumentItem
+import com.hour24.tb.room.AppDatabase
 import com.hour24.tb.utils.Logger
 import com.hour24.tb.utils.TextFormatUtils
 import com.hour24.tb.view.activity.DetailActivity
-import java.text.SimpleDateFormat
 import java.util.*
 
 
 class SearchViewHolder(private val mActivity: Activity,
-                       private val mBinding: MainSearchBinding)
+                       private val mBinding: MainSearchItemBinding)
     : RecyclerView.ViewHolder(mBinding.root) {
 
     private val TAG = SearchViewHolder::class.java.name
     private val mView: View = mBinding.root
-
-
-    init {
-
-    }
 
     fun onBindView(item: DocumentItem, position: Int) {
 
@@ -38,6 +34,7 @@ class SearchViewHolder(private val mActivity: Activity,
             // position 삽입
             item.position = position
             viewModel.mModel = item
+            viewModel.setRead()
 
             mBinding.viewModel = viewModel
 
@@ -49,6 +46,7 @@ class SearchViewHolder(private val mActivity: Activity,
     inner class ViewModel {
 
         var mModel: DocumentItem? = null
+        var mIsRead: ObservableBoolean = ObservableBoolean()
 
         fun onClick(v: View, model: DocumentItem) {
             when (v.id) {
@@ -74,6 +72,26 @@ class SearchViewHolder(private val mActivity: Activity,
          */
         fun getDate(date: Date): String {
             return TextFormatUtils.getDate(mActivity, date)
+        }
+
+        /**
+         * 읽음 처리
+         */
+        fun setRead() {
+            AsyncTask.execute({
+                try {
+
+                    var count = AppDatabase.getInstance(mActivity).readDAO().selectCount(mModel!!.url)
+//                    Logger.e(TAG, "url ${mModel!!.url} / count : $count")
+
+                    if (count > 0) {
+                        mIsRead.set(true)
+                    }
+
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            })
         }
 
 

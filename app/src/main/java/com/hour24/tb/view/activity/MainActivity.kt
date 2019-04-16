@@ -70,6 +70,11 @@ class MainActivity : AppCompatActivity(), Initialize {
 
     }
 
+    override fun onResume() {
+        super.onResume()
+        mAdapter.notifyDataSetChanged()
+    }
+
     /**
      * 데이터 바인딩
      */
