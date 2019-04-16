@@ -55,9 +55,12 @@ class MainActivity : AppCompatActivity(), Initialize {
     private var mIsLoading: Boolean = false
     private var mIsLast: Boolean = false // 마지막 페이지 여부
     private var mLastItemVisibleFlag: Boolean = false
+    private var mIsBlogEnd: Boolean = false // 블로그 페이지 End 여부
+    private var mIsCafeEnd: Boolean = false // 카페 페이지 End 여부
 
     var mFilterType = DataConst.FILTER_ALL // 필터
     var mSortType = DataConst.SORT_TITLE // 정렬
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -157,41 +160,78 @@ class MainActivity : AppCompatActivity(), Initialize {
 
         try {
 
-            // 포커스 해제
-            mBinding.etSearch.clearFocus()
-
-            // 리스트 클리어 여부
-            if (clear) {
-                mList.clear()
-                mList.add(DocumentItem(Style.MAIN.FILTER))
-            }
-
             // 검색어 공백 체크
             val text = mBinding.etSearch.text.toString()
             if (ObjectUtils.isEmpty(text)) {
                 Snackbar.make(mBinding.root, R.string.main_empty_text, Snackbar.LENGTH_SHORT).show()
                 return
             }
+            // 포커스 해제
+            mBinding.etSearch.clearFocus()
+
+            // 리스트 체크
+            listCheck(clear)
 
             // 필터체크
-            when (mFilterType) {
-
-                DataConst.FILTER_BLOG, DataConst.FILTER_CAFE -> {
-                    mViewModel.search(mFilterType, text)
-                }
-
-                else -> {
-                    // 모든 필터 검색
-                    mViewModel.search(DataConst.FILTER_BLOG, text)
-                    mViewModel.search(DataConst.FILTER_CAFE, text)
-                }
-            }
+            filterCheck(text)
 
             // 최근검색 저장
             AppDatabase.insert(text)
 
         } catch (e: Exception) {
             e.printStackTrace()
+        }
+
+    }
+
+    /**
+     * 리스트 체크
+     */
+    private fun listCheck(clear: Boolean) {
+
+        // 리스트 클리어 여부
+        if (clear) {
+            mList.clear()
+            mList.add(DocumentItem(Style.MAIN.FILTER))
+            mAdapter.notifyDataSetChanged() // 크래시 방지
+
+            mIsBlogEnd = false
+            mIsCafeEnd = false
+        }
+
+    }
+
+    /**
+     * 필터체크
+     */
+    private fun filterCheck(text: String) {
+
+        when (mFilterType) {
+
+            DataConst.FILTER_BLOG -> {
+                // 블로그 검색
+                if (!mIsBlogEnd) {
+                    mViewModel.search(mFilterType, text)
+                }
+            }
+
+            DataConst.FILTER_CAFE -> {
+                // 카페 검색
+                if (!mIsCafeEnd) {
+                    mViewModel.search(mFilterType, text)
+                }
+            }
+
+            else -> {
+                // 모든 필터 검색
+                if (!mIsBlogEnd) {
+                    mViewModel.search(DataConst.FILTER_BLOG, text)
+                }
+
+                if (!mIsCafeEnd) {
+                    mViewModel.search(DataConst.FILTER_CAFE, text)
+                }
+            }
         }
 
     }
@@ -235,14 +275,17 @@ class MainActivity : AppCompatActivity(), Initialize {
 
                 override fun onResponse(call: Call<SearchModel>, response: Response<SearchModel>) {
 
+                    mIsLoading = true
+
                     try {
 
                         if (response.isSuccessful) {
                             val resData = response.body()
 
                             if (resData != null) {
-
                                 Logger.e(TAG, resData.toString())
+
+                                var filterType: String = DataConst.FILTER_ALL
 
                                 val list = resData.documents
                                 list.forEachIndexed { index, model ->
@@ -253,9 +296,10 @@ class MainActivity : AppCompatActivity(), Initialize {
                                     // 필터 처리
                                     if (!ObjectUtils.isEmpty(model.blogname)) {
                                         model.filter = DataConst.FILTER_BLOG
-                                    } else if (!ObjectUtils.isEmpty(model.cafename)) {
+                                    } else {
                                         model.filter = DataConst.FILTER_CAFE
                                     }
+                                    filterType = model.filter
 
                                     // Date 처리
                                     val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSX", Locale.KOREA)
@@ -269,10 +313,16 @@ class MainActivity : AppCompatActivity(), Initialize {
                                 // 정렬
                                 sort()
 
-                                mAdapter.notifyDataSetChanged()
-
                                 mCurPageNo++
 
+                                // page end 처리
+                                if (filterType == DataConst.FILTER_BLOG) {
+                                    mIsBlogEnd = resData.meta.is_end
+                                } else {
+                                    mIsCafeEnd = resData.meta.is_end
+                                }
+
+                                mAdapter.notifyDataSetChanged()
                             }
                         }
 
@@ -280,10 +330,12 @@ class MainActivity : AppCompatActivity(), Initialize {
                         e.printStackTrace()
                     }
 
+                    mIsLoading = false
                 }
 
                 override fun onFailure(call: Call<SearchModel>, t: Throwable) {
                     Logger.e(TAG, "onFailure : " + t.message)
+                    mIsLoading = false
                 }
             })
         }
@@ -360,7 +412,7 @@ class MainActivity : AppCompatActivity(), Initialize {
 
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 if (newState == RecyclerView.SCROLL_STATE_IDLE && mLastItemVisibleFlag) {
-                    if (!mIsLoading && !mIsLast) {
+                    if (!mIsLoading) {
                         actionSearch(false)
                     }
                 }
