@@ -47,7 +47,7 @@ class FilterViewHolder(private val mActivity: MainActivity,
     override fun initVariable() {
 
         // 필터
-        mViewModel.mFilter.set(DataConst.FILTER_ALL) // 초기값
+        mViewModel.mFilter.set(mActivity.mFilterType) // 초기값
         mFilterList.add(DataConst.FILTER_ALL)
         mFilterList.add(DataConst.FILTER_BLOG)
         mFilterList.add(DataConst.FILTER_CAFE)
@@ -66,6 +66,7 @@ class FilterViewHolder(private val mActivity: MainActivity,
 
         try {
 
+            mViewModel.mFilter.set(mActivity.mFilterType)
             mBinding.viewModel = mViewModel
 
         } catch (e: Exception) {
@@ -86,7 +87,6 @@ class FilterViewHolder(private val mActivity: MainActivity,
                     when (v.id) {
 
                         R.id.tv_filter -> { // 필터 클릭
-
 
                             val popupWindow = ListPopupWindow(v.context)
                             popupWindow.anchorView = v

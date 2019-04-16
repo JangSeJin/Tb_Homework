@@ -40,13 +40,7 @@ class MainAdapter constructor(
     }
 
     override fun getItemViewType(position: Int): Int {
-
-        return if (position == 0) {
-            Style.MAIN.FILTER
-        } else {
-            Style.MAIN.ITEM
-        }
-
+        return mList!![position].style
     }
 
     override fun getItemId(position: Int): Long {

@@ -29,7 +29,8 @@ data class MetaModel(val total_count: Int,
                      val pageable_count: Int,
                      val is_end: Boolean) : Serializable
 
-data class DocumentItem(var filter: String,
+data class DocumentItem(var style: Int,
+                        var filter: String,
                         val title: String,
                         val contents: String,
                         val url: String,
@@ -38,8 +39,11 @@ data class DocumentItem(var filter: String,
                         val name: String, // blog, cafe name 통합
                         val thumbnail: String,
                         val datetime: String,
-                        var date: Date,
+                        var date: Date?,
                         var position: Int
-) : Serializable
+) : Serializable {
+    constructor(style: Int) :
+            this(style, "", "", "", "", "", "", "", "", "", null, 0)
+}
 
 

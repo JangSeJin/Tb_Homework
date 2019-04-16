@@ -16,6 +16,7 @@ import android.widget.TextView
 import com.hour24.tb.R
 import com.hour24.tb.adapter.MainAdapter
 import com.hour24.tb.const.DataConst
+import com.hour24.tb.const.Style
 import com.hour24.tb.databinding.MainActivityBinding
 import com.hour24.tb.interfaces.Initialize
 import com.hour24.tb.model.DocumentItem
@@ -113,6 +114,7 @@ class MainActivity : AppCompatActivity(), Initialize {
 
         try {
 
+            // 소프트 키보드 검색 버튼
             mBinding.etSearch.imeOptions = EditorInfo.IME_ACTION_SEARCH
             mBinding.etSearch.setOnEditorActionListener(TextView.OnEditorActionListener { v, actionId, event ->
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
@@ -138,41 +140,7 @@ class MainActivity : AppCompatActivity(), Initialize {
                     return@OnFocusChangeListener
                 }
 
-                val loadData = @SuppressLint("StaticFieldLeak")
-                object : AsyncTask<Unit, Unit, MutableList<Recent>>() {
-
-                    override fun doInBackground(vararg params: Unit?): MutableList<Recent> {
-                        return AppDatabase.getInstance(this@MainActivity).recentDao().selectAll()
-
-                    }
-
-                    override fun onPostExecute(result: MutableList<Recent>) {
-                        super.onPostExecute(result)
-
-                        val list = ArrayList<String>()
-                        result.forEach({
-                            list.add(it.search)
-                        })
-
-                        val popupWindow = ListPopupWindow(v.context)
-                        popupWindow.anchorView = v
-                        popupWindow.setAdapter(ArrayAdapter(v.context, R.layout.main_recent_item, list))
-                        popupWindow.setOnItemClickListener { parent, view, menuPosition, id ->
-
-                            try {
-                                mBinding.etSearch.setText(list[menuPosition])
-
-                                actionSearch(true)
-                                popupWindow.dismiss()
-
-                            } catch (e: Exception) {
-                                e.printStackTrace()
-                            }
-                        }
-                        popupWindow.show()
-                    }
-                }
-                loadData.execute()
+                mViewModel.showRecentPopupWindow(v)
 
             }
 
@@ -195,6 +163,7 @@ class MainActivity : AppCompatActivity(), Initialize {
             // 리스트 클리어 여부
             if (clear) {
                 mList.clear()
+                mList.add(DocumentItem(Style.MAIN.FILTER))
             }
 
             // 검색어 공백 체크
@@ -237,6 +206,11 @@ class MainActivity : AppCompatActivity(), Initialize {
 
         fun onClick(v: View) {
             when (v.id) {
+
+                R.id.et_search -> {
+                    mViewModel.showRecentPopupWindow(v)
+                }
+
                 R.id.iv_search -> {
                     // 검색버튼
                     actionSearch(true)
@@ -272,6 +246,9 @@ class MainActivity : AppCompatActivity(), Initialize {
 
                                 val list = resData.documents
                                 list.forEachIndexed { index, model ->
+
+                                    // 스타일 지정
+                                    model.style = Style.MAIN.ITEM
 
                                     // 필터 처리
                                     if (!ObjectUtils.isEmpty(model.blogname)) {
@@ -326,6 +303,54 @@ class MainActivity : AppCompatActivity(), Initialize {
             } catch (e: Exception) {
                 e.printStackTrace()
             }
+        }
+
+        /**
+         * 최근검색 팝업 뷰
+         */
+        fun showRecentPopupWindow(v: View) {
+
+            val loadData = @SuppressLint("StaticFieldLeak")
+            object : AsyncTask<Unit, Unit, MutableList<Recent>>() {
+
+                override fun doInBackground(vararg params: Unit?): MutableList<Recent> {
+                    return AppDatabase.getInstance(this@MainActivity).recentDao().selectAll()
+
+                }
+
+                override fun onPostExecute(result: MutableList<Recent>) {
+                    super.onPostExecute(result)
+
+                    try {
+
+                        val list = ArrayList<String>()
+                        result.forEach({
+                            list.add(it.search)
+                        })
+
+                        val popupWindow = ListPopupWindow(v.context)
+                        popupWindow.anchorView = v
+                        popupWindow.setAdapter(ArrayAdapter(v.context, R.layout.main_recent_item, list))
+                        popupWindow.setOnItemClickListener { parent, view, menuPosition, id ->
+
+                            try {
+                                mBinding.etSearch.setText(list[menuPosition])
+
+                                actionSearch(true)
+                                popupWindow.dismiss()
+
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
+                        }
+                        popupWindow.show()
+
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+            }
+            loadData.execute()
         }
 
         /**
