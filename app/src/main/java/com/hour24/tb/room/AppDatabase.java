@@ -51,6 +51,14 @@ public abstract class AppDatabase extends RoomDatabase {
     }
 
     /**
+     * Connection Close
+     */
+    public static void destroy() {
+        mInstance.close();
+    }
+
+
+    /**
      * 최근검색 저장
      *
      * @param search

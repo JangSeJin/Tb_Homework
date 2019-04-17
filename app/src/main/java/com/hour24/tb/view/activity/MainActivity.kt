@@ -53,14 +53,12 @@ class MainActivity : AppCompatActivity(), Initialize {
     private var mCurPageNo: Int = 1 // 페이지 넘버
     private val mPageSize: Int = 10 // 가져올 아이템 갯수
     private var mIsLoading: Boolean = false
-    private var mIsLast: Boolean = false // 마지막 페이지 여부
     private var mLastItemVisibleFlag: Boolean = false
     private var mIsBlogEnd: Boolean = false // 블로그 페이지 End 여부
     private var mIsCafeEnd: Boolean = false // 카페 페이지 End 여부
 
     var mFilterType = DataConst.FILTER_ALL // 필터
     var mSortType = DataConst.SORT_TITLE // 정렬
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,9 +72,20 @@ class MainActivity : AppCompatActivity(), Initialize {
 
     }
 
+    /**
+     * 아이템 최신화
+     */
     override fun onResume() {
         super.onResume()
         mAdapter.notifyDataSetChanged()
+    }
+
+    /**
+     * onDestroy
+     */
+    override fun onDestroy() {
+        AppDatabase.destroy()
+        super.onDestroy()
     }
 
     /**
@@ -302,10 +311,7 @@ class MainActivity : AppCompatActivity(), Initialize {
                                     filterType = model.filter
 
                                     // Date 처리
-                                    val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSX", Locale.KOREA)
-                                    simpleDateFormat.timeZone = TimeZone.getTimeZone("UTC")
-                                    model.date = simpleDateFormat.parse(model.datetime) // api 에서 받아온 날짜
-
+                                    model.date = Utils.getFormatToDate("yyyy-MM-dd'T'HH:mm:ss.SSSSX", model.datetime)
                                 }
 
                                 mList.addAll(list)
@@ -390,7 +396,6 @@ class MainActivity : AppCompatActivity(), Initialize {
 
                                 actionSearch(true)
                                 popupWindow.dismiss()
-
                             } catch (e: Exception) {
                                 e.printStackTrace()
                             }

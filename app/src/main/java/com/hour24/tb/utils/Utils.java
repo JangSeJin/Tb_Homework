@@ -1,16 +1,12 @@
 package com.hour24.tb.utils;
 
 import android.app.Activity;
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
-import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
@@ -20,6 +16,7 @@ import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 public class Utils {
 
@@ -51,22 +48,6 @@ public class Utils {
     }
 
     /**
-     * @param context context
-     * @param dp      dp
-     * @author 장세진
-     * @description Get DP
-     */
-    public static float getDpFromPx(Context context, float dp) {
-        try {
-            return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, context.getResources().getDisplayMetrics());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return dp;
-    }
-
-    /**
      * @author 장세진
      * @description 키보드 보임/숨김
      */
@@ -89,13 +70,29 @@ public class Utils {
     }
 
     /**
+     * @author 장세진
+     * @description Date class 로 변환
+     */
+    public static Date getFormatToDate(String format, final String dateTime) {
+        try {
+            // Date 처리
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format, Locale.KOREA);
+            simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+            return simpleDateFormat.parse(dateTime);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
      * 다른 형태의 포맷으로 날짜 타입 변경
      */
-    public static String getConvertDateFormat(final long time, final String format) {
+    public static String getDateToFormat(final Date date, final String format) {
         try {
 
             SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.KOREA);
-            return sdf.format(time);
+            return sdf.format(date);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -104,80 +101,4 @@ public class Utils {
         return null;
     }
 
-    /**
-     * 멀티라인 제한
-     */
-    public static String getMultiLineDisable(String content, String enter) {
-        try {
-
-            // 세줄이상 잘라버리기
-            String block = content;
-            String a = enter;
-            for (int i = 0; i < 100; i++) {
-                a += "\n";
-                block = block.replaceAll(enter, "\n\n");
-            }
-            return block;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return content;
-    }
-
-    /**
-     * 다른 형태의 포맷으로 날짜 타입 변경
-     */
-    public static String getConvertDateFormat(final String date, final String originalFormat, final String convertFormat) {
-        try {
-
-            if (TextUtils.isEmpty(date)) {
-                return date;
-            }
-
-            SimpleDateFormat sdf = new SimpleDateFormat(originalFormat, Locale.KOREA);
-            Date d = sdf.parse(date);
-
-            sdf = new SimpleDateFormat(convertFormat, Locale.KOREA);
-
-            return sdf.format(d);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return date;
-    }
-
-    /**
-     * 클립보드 복사
-     *
-     * @param context
-     * @param text
-     */
-    public static void setClipBoard(Context context, String text) {
-
-        try {
-
-            ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-            ClipData clipData = ClipData.newPlainText("label", text);
-            clipboardManager.setPrimaryClip(clipData);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    /**
-     * 파일 확장자 가져오기
-     *
-     * @param fileStr 경로나 파일이름
-     * @return
-     */
-    public static String getExtension(String fileStr) {
-        String fileExtension = fileStr.substring(fileStr.lastIndexOf(".") + 1, fileStr.length());
-        return TextUtils.isEmpty(fileExtension) ? null : fileExtension;
-    }
 }

@@ -1,4 +1,4 @@
-package com.hour24.teamblind
+package com.hour24.tb
 
 import android.support.test.InstrumentationRegistry
 import android.support.test.runner.AndroidJUnit4

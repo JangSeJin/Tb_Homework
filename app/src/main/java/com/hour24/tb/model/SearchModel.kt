@@ -34,8 +34,8 @@ data class DocumentItem(var style: Int,
                         val title: String,
                         val contents: String,
                         val url: String,
-                        val blogname: String, // blog 이름
-                        val cafename: String, // cafe 이름
+                        var blogname: String, // blog 이름
+                        var cafename: String, // cafe 이름
                         val name: String, // blog, cafe name 통합
                         val thumbnail: String,
                         val datetime: String,
@@ -44,6 +44,9 @@ data class DocumentItem(var style: Int,
 ) : Serializable {
     constructor(style: Int) :
             this(style, "", "", "", "", "", "", "", "", "", null, 0)
+
+    constructor() :
+            this(0, "", "", "", "", "", "", "", "", "", null, 0)
 }
 
 

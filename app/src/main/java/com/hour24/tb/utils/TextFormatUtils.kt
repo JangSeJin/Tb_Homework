@@ -50,8 +50,7 @@ object TextFormatUtils {
                 0 -> activity.getString(R.string.main_today)
                 1 -> activity.getString(R.string.main_yesterday)
                 else -> {
-                    val format = SimpleDateFormat("yyyy년 MM월 dd일", Locale.KOREA)
-                    format.format(date)
+                    Utils.getDateToFormat(date, activity.getString(R.string.main_date_format))
                 }
             }
 
